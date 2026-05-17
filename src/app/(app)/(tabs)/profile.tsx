@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import {
   Bell,
+  BookOpen,
   Camera,
   ChevronRight,
   LogOut,
@@ -19,19 +20,18 @@ import {
 } from "react-native";
 import { apiClient } from "../../../api/client";
 import { useAuth } from "../../../store/useAuth";
+import { useBookmarks } from "../../../store/useBookmarks";
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
+  const { bookmarkedIds } = useBookmarks();
   const [isUploading, setIsUploading] = useState(false);
-  const [localAvatar, setLocalAvatar] = useState<string | null>(
-    user?.avatar?.url || null,
-  );
 
   const handleImagePick = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
-        "Permission needed",
+        "Permission Needed",
         "We need camera roll permissions to update your avatar.",
       );
       return;
@@ -45,9 +45,7 @@ export default function ProfileScreen() {
     });
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setLocalAvatar(uri);
-      uploadAvatar(uri);
+      uploadAvatar(result.assets[0].uri);
     }
   };
 
@@ -57,7 +55,7 @@ export default function ProfileScreen() {
       const formData = new FormData();
       const filename = uri.split("/").pop() || "avatar.jpg";
       const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image`;
+      const type = match ? `image/${match[1]}` : `image/jpeg`;
 
       formData.append("avatar", {
         uri,
@@ -65,15 +63,18 @@ export default function ProfileScreen() {
         type,
       } as any);
 
-      await apiClient.patch("/users/avatar", formData, {
+      const response = await apiClient.patch("/users/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-    } catch (error) {
+
+      const updatedUser = response.data.data;
+      updateUser(updatedUser);
+    } catch (error: any) {
+      console.error(error.response?.data);
       Alert.alert(
         "Upload Failed",
         "Could not update your avatar. Please try again.",
       );
-      setLocalAvatar(user?.avatar?.url || null);
     } finally {
       setIsUploading(false);
     }
@@ -87,7 +88,7 @@ export default function ProfileScreen() {
   }: any) => (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center justify-between py-4 border-b border-neutral-900"
+      className="flex-row items-center justify-between py-4 border-b border-neutral-900 active:opacity-70"
     >
       <View className="flex-row items-center">
         <View
@@ -101,40 +102,41 @@ export default function ProfileScreen() {
           {title}
         </Text>
       </View>
-      <ChevronRight size={20} />
+      <ChevronRight size={20} color="#525252" />
     </TouchableOpacity>
   );
 
   return (
     <ScrollView
       className="flex-1 bg-black"
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 40, paddingTop: 40 }}
     >
-      <View className="px-6 pt-16 pb-8 items-center border-b border-neutral-900">
+      <View className="px-6 pt-10 pb-8 items-center border-b border-neutral-900">
         <TouchableOpacity
           onPress={handleImagePick}
           disabled={isUploading}
           className="relative mb-4"
         >
           <View className="w-28 h-28 rounded-full bg-neutral-900 border-2 border-neutral-800 overflow-hidden items-center justify-center">
-            {localAvatar ? (
+            {user?.avatar?.url ? (
               <Image
-                source={{ uri: localAvatar }}
+                source={{ uri: user.avatar.url }}
                 style={{ width: "100%", height: "100%" }}
                 transition={200}
+                cachePolicy="memory-disk"
               />
             ) : (
-              <Text className="text-neutral-500 text-3xl font-bold">
-                {user?.username?.charAt(0).toUpperCase() || "?"}
+              <Text className="text-neutral-500 text-4xl font-bold uppercase">
+                {user?.username?.charAt(0) || "?"}
               </Text>
             )}
           </View>
 
-          <View className="absolute bottom-0 right-0 bg-white p-2 rounded-full border-4 border-black">
+          <View className="absolute bottom-0 right-0 bg-white p-2 rounded-full border-4 border-black shadow-lg">
             {isUploading ? (
               <ActivityIndicator size="small" color="#000" />
             ) : (
-              <Camera size={14} />
+              <Camera size={16} color="#000" />
             )}
           </View>
         </TouchableOpacity>
@@ -146,7 +148,7 @@ export default function ProfileScreen() {
           {user?.email || "No email provided"}
         </Text>
 
-        <View className="mt-4 bg-neutral-900 px-4 py-1.5 rounded-full">
+        <View className="mt-4 bg-neutral-900 px-4 py-1.5 rounded-full border border-neutral-800">
           <Text className="text-neutral-300 text-xs font-bold uppercase tracking-widest">
             {user?.role || "USER"}
           </Text>
@@ -155,21 +157,28 @@ export default function ProfileScreen() {
 
       <View className="flex-row px-6 py-6 border-b border-neutral-900">
         <View className="flex-1 items-center border-r border-neutral-900">
-          <Text className="text-white text-xl font-bold">12</Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider">
-            Courses
+          <BookOpen size={24} color="#ffffff" className="mb-2" />
+          <Text className="text-white text-2xl font-bold">
+            {bookmarkedIds.length}
+          </Text>
+          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+            Courses{"\n"}Enrolled
           </Text>
         </View>
         <View className="flex-1 items-center border-r border-neutral-900">
-          <Text className="text-white text-xl font-bold">4</Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider">
-            Certificates
+          <Shield size={24} color="#ffffff" className="mb-2" />
+          <Text className="text-white text-2xl font-bold">
+            {bookmarkedIds.length > 0 ? "12%" : "0%"}
+          </Text>
+          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+            Overall{"\n"}Progress
           </Text>
         </View>
         <View className="flex-1 items-center">
-          <Text className="text-white text-xl font-bold">🔥 3</Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider">
-            Day Streak
+          <Text className="text-white text-2xl font-bold mt-1 mb-1">🔥</Text>
+          <Text className="text-white text-2xl font-bold">3</Text>
+          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+            Day{"\n"}Streak
           </Text>
         </View>
       </View>
@@ -180,7 +189,6 @@ export default function ProfileScreen() {
         </Text>
         <MenuRow icon={Settings} title="Preferences" onPress={() => {}} />
         <MenuRow icon={Bell} title="Notifications" onPress={() => {}} />
-        <MenuRow icon={Shield} title="Privacy & Security" onPress={() => {}} />
 
         <Text className="text-neutral-500 text-xs font-bold uppercase tracking-wider mb-2 mt-8">
           System

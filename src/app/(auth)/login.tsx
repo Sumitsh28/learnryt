@@ -43,14 +43,17 @@ export default function LoginScreen() {
         password: data.password,
       });
 
+      console.log(
+        "✅ LOGIN SUCCESS! Raw Payload:",
+        JSON.stringify(response.data.data, null, 2),
+      );
+
       const { user, accessToken, refreshToken } = response.data.data;
 
       await login(user, accessToken, refreshToken);
     } catch (error: any) {
-      setServerError(
-        error.response?.data?.message ||
-          "Unable to log in. Please check your credentials.",
-      );
+      console.error("❌ LOGIN FAILED:", error.response?.data);
+      setServerError(error.response?.data?.message || "Unable to log in.");
     }
   };
 

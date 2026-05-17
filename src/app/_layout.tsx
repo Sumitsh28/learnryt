@@ -26,6 +26,17 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
+        <Stack.Screen
+          name="modals/ai-tutor"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="modals/dev-menu"
+          options={{ presentation: "modal", headerShown: false }}
+        />
       </Stack>
     </QueryClientProvider>
   );
