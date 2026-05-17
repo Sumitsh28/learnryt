@@ -3,13 +3,16 @@
 import * as LocalAuthentication from "expo-local-authentication";
 import { Redirect } from "expo-router";
 import { Fingerprint } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useAuth } from "../store/useAuth";
 
 export default function BootScreen() {
   const { hydrate, isLoading, isAuthenticated } = useAuth();
   const [isSecure, setIsSecure] = useState<boolean | null>(null);
+  const { colorScheme } = useColorScheme();
 
   const authenticate = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
@@ -41,29 +44,53 @@ export default function BootScreen() {
 
   if (isSecure === false) {
     return (
-      <View className="flex-1 items-center justify-center bg-black px-6">
-        <View className="bg-neutral-900 p-6 rounded-full mb-6 border border-neutral-800">
-          <Fingerprint size={48} color="#ffffff" />
-        </View>
-        <Text className="text-white text-2xl font-bold mb-2">App Locked</Text>
-        <Text className="text-neutral-400 text-center mb-8">
-          Please verify your identity to access your secure learning
-          environment.
-        </Text>
-        <TouchableOpacity
-          onPress={authenticate}
-          className="bg-white px-8 py-4 rounded-full active:opacity-80"
+      <View className="flex-1 items-center justify-center bg-brand-light dark:bg-brand-navy px-8">
+        <Animated.View
+          entering={FadeInDown.duration(600).springify().damping(14)}
+          className="items-center"
         >
-          <Text className="text-black font-bold text-lg">Unlock App</Text>
-        </TouchableOpacity>
+          <View className="bg-white dark:bg-brand-dark p-8 rounded-[36px] mb-8 shadow-sm border border-transparent dark:border-white/5">
+            <Fingerprint
+              size={56}
+              color={colorScheme === "dark" ? "#C6F432" : "#2A264F"}
+              strokeWidth={1.5}
+            />
+          </View>
+
+          <Text className="text-brand-navy dark:text-white text-3xl font-black tracking-tight mb-3">
+            App Locked
+          </Text>
+
+          <Text className="text-gray-500 dark:text-brand-gray text-center mb-10 text-base font-medium leading-relaxed px-4">
+            Please verify your identity to access your secure learning
+            environment.
+          </Text>
+
+          <TouchableOpacity
+            onPress={authenticate}
+            className="bg-brand-navy dark:bg-brand-lime px-10 py-5 rounded-full shadow-lg active:opacity-80 w-full items-center"
+          >
+            <Text className="text-white dark:text-brand-navy font-black text-lg tracking-wide">
+              Unlock App
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     );
   }
 
   if (isLoading || isSecure === null) {
     return (
-      <View className="flex-1 items-center justify-center bg-black">
-        <ActivityIndicator size="large" color="#ffffff" />
+      <View className="flex-1 items-center justify-center bg-brand-light dark:bg-brand-navy">
+        <Animated.View entering={FadeIn.duration(400)} className="items-center">
+          <ActivityIndicator
+            size="large"
+            color={colorScheme === "dark" ? "#C6F432" : "#2A264F"}
+          />
+          <Text className="text-gray-400 dark:text-brand-gray mt-6 font-bold tracking-widest uppercase text-xs">
+            Securing Session...
+          </Text>
+        </Animated.View>
       </View>
     );
   }

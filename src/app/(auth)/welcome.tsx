@@ -1,79 +1,89 @@
 import { Link } from "expo-router";
-import { Shield, Sparkles, Zap } from "lucide-react-native";
+import { Sparkles } from "lucide-react-native";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 export default function WelcomeScreen() {
-  const FeatureItem = ({ icon: Icon, title, subtitle, delay }: any) => (
-    <Animated.View
-      entering={FadeInDown.duration(600).delay(delay)}
-      className="flex-row items-center mb-6"
-    >
-      <View className="bg-neutral-900 p-3 rounded-2xl border border-neutral-800">
-        <Icon size={24} color="#ffffff" />
-      </View>
-      <View className="ml-4 flex-1">
-        <Text className="text-white text-lg font-bold">{title}</Text>
-        <Text className="text-neutral-400 text-sm">{subtitle}</Text>
-      </View>
-    </Animated.View>
-  );
-
   return (
-    <View className="flex-1 bg-black px-6 pt-20 pb-10">
-      {/* Hero Section */}
-      <Animated.View entering={FadeIn.duration(800)} className="mb-12 mt-8">
-        <Text className="text-white text-5xl font-extrabold tracking-tighter mb-2">
-          Master{"\n"}Your Craft.
-        </Text>
-        <Text className="text-neutral-400 text-base leading-relaxed mt-4">
-          Join the elite community of continuous learners. Access world-class
-          courses, instantly.
-        </Text>
-      </Animated.View>
-
-      {/* Features List */}
-      <View className="flex-1 mt-4">
-        <FeatureItem
-          icon={Zap}
-          title="Lightning Fast"
-          subtitle="60fps native performance and offline caching."
-          delay={200}
-        />
-        <FeatureItem
-          icon={Shield}
-          title="Secure & Private"
-          subtitle="Enterprise-grade token management."
-          delay={400}
-        />
-        <FeatureItem
-          icon={Sparkles}
-          title="Premium UX"
-          subtitle="Fluid animations and haptic feedback."
-          delay={600}
-        />
-      </View>
-
-      {/* Call to Action Buttons */}
+    <View className="flex-1 bg-brand-light dark:bg-brand-navy overflow-hidden px-6 pt-16 pb-12">
       <Animated.View
-        entering={FadeInDown.duration(600).delay(800)}
-        className="w-full"
-      >
-        <Link href="/(auth)/register" asChild>
-          <TouchableOpacity className="bg-white py-4 rounded-2xl items-center justify-center mb-4 active:opacity-80">
-            <Text className="text-black text-lg font-bold">Get Started</Text>
-          </TouchableOpacity>
-        </Link>
+        entering={FadeIn.duration(1000)}
+        className="absolute -top-16 -left-10 w-64 h-64 bg-brand-peach rounded-full opacity-90"
+      />
+      <Animated.View
+        entering={FadeIn.duration(1000).delay(200)}
+        className="absolute top-10 -right-20 w-48 h-48 bg-brand-peach rounded-full opacity-60"
+      />
 
-        <Link href="/(auth)/login" asChild>
-          <TouchableOpacity className="bg-transparent py-4 rounded-2xl items-center justify-center border border-neutral-800 active:bg-neutral-900">
-            <Text className="text-white text-lg font-bold">
-              I already have an account
+      <Animated.View
+        entering={FadeInDown.duration(800).springify().damping(14)}
+        className="w-full bg-[#483DE0] rounded-[40px] p-8 aspect-[3/4] justify-between relative mt-12 shadow-2xl border-4 border-white dark:border-[#1C1A38]/50 overflow-hidden"
+      >
+        <View className="absolute top-10 right-10 opacity-30">
+          <Sparkles size={60} color="#ffffff" strokeWidth={1} />
+        </View>
+
+        <View className="mt-8 z-10">
+          <View className="bg-white/20 self-start px-3 py-1.5 rounded-full mb-6 flex-row items-center">
+            <Text className="text-white text-xs font-bold tracking-widest uppercase">
+              Elite LMS
             </Text>
-          </TouchableOpacity>
-        </Link>
+          </View>
+
+          <Text className="text-white text-6xl font-black tracking-tighter mb-0 leading-[65px]">
+            Learn
+          </Text>
+
+          <Text className="text-white/50 text-6xl font-black tracking-tighter mb-0 leading-[65px]">
+            Dream
+          </Text>
+          <Text className="text-white text-6xl font-black tracking-tighter leading-[65px]">
+            Achieve.
+          </Text>
+        </View>
+
+        <View className="z-10">
+          <Text className="text-white/80 text-sm font-medium leading-relaxed pr-8">
+            Education entails acquiring knowledge to have a greater
+            understanding of the world around us.
+          </Text>
+        </View>
+
+        <View className="absolute top-0 right-0 w-24 h-24 bg-brand-light dark:bg-brand-navy rounded-bl-[48px] z-20" />
+        <View className="absolute top-4 right-4 w-14 h-14 bg-[#2A238A] rounded-bl-[20px] rounded-tr-[20px] shadow-lg z-20 opacity-80 transform -rotate-12" />
       </Animated.View>
+
+      <Animated.View
+        entering={FadeIn.delay(600)}
+        className="flex-row items-center justify-center mt-10 gap-2.5"
+      >
+        <View className="w-8 h-2.5 rounded-full bg-brand-lime" />
+        <View className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-brand-dark" />
+        <View className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-brand-dark" />
+      </Animated.View>
+
+      <View className="w-full mt-auto">
+        <Animated.View entering={FadeInDown.duration(600).delay(800)}>
+          <Link href="/(auth)/register" asChild>
+            <TouchableOpacity className="bg-brand-lime py-5 rounded-full items-center justify-center shadow-lg active:opacity-80 mb-4">
+              <Text className="text-brand-navy font-black text-xl tracking-wide">
+                Start Learning
+              </Text>
+            </TouchableOpacity>
+          </Link>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.duration(600).delay(900)}>
+          <Link href="/(auth)/login" asChild>
+            <TouchableOpacity className="py-4 items-center justify-center active:opacity-60">
+              <Text className="text-gray-500 dark:text-brand-gray font-bold text-base">
+                I already have an account
+              </Text>
+            </TouchableOpacity>
+          </Link>
+        </Animated.View>
+      </View>
     </View>
   );
 }

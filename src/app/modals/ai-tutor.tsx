@@ -103,17 +103,27 @@ export default function AITutorModal() {
     return (
       <Animated.View
         entering={FadeInDown.duration(400)}
-        className={`flex-row mb-4 ${isUser ? "justify-end" : "justify-start"}`}
+        className={`flex-row mb-5 ${isUser ? "justify-end" : "justify-start"}`}
       >
         {!isUser && (
-          <View className="w-8 h-8 rounded-full bg-neutral-800 items-center justify-center mr-2 border border-neutral-700">
-            <Bot size={16} color="#ffffff" />
+          <View className="w-8 h-8 rounded-full bg-brand-light dark:bg-brand-dark items-center justify-center mr-3 border border-gray-200 dark:border-white/5 shadow-sm">
+            <Bot size={16} color={Platform.OS === "ios" ? "#000" : "#8A88A4"} />
           </View>
         )}
         <View
-          className={`max-w-[80%] rounded-2xl p-4 ${isUser ? "bg-white" : "bg-neutral-900 border border-neutral-800"}`}
+          className={`max-w-[80%] rounded-3xl p-4 shadow-sm ${
+            isUser
+              ? "bg-brand-navy dark:bg-brand-peach rounded-tr-sm"
+              : "bg-white dark:bg-[#232042] border border-transparent dark:border-white/5 rounded-tl-sm"
+          }`}
         >
-          <Text className={`text-base ${isUser ? "text-black" : "text-white"}`}>
+          <Text
+            className={`text-base font-medium leading-relaxed ${
+              isUser
+                ? "text-white dark:text-brand-navy"
+                : "text-brand-navy dark:text-white"
+            }`}
+          >
             {item.content}
           </Text>
         </View>
@@ -124,25 +134,27 @@ export default function AITutorModal() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-black"
+      className="flex-1 bg-brand-light dark:bg-brand-navy"
     >
-      <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-neutral-900 bg-black z-10">
+      <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-gray-200 dark:border-brand-dark bg-brand-light dark:bg-brand-navy z-10">
         <View className="flex-row items-center">
-          <View className="bg-neutral-900 p-2 rounded-full border border-neutral-800 mr-3">
-            <Bot size={20} color="#a3a3a3" />
+          <View className="bg-white dark:bg-brand-dark p-2.5 rounded-2xl shadow-sm mr-4">
+            <Bot size={22} color={Platform.OS === "ios" ? "#000" : "#8A88A4"} />
           </View>
           <View>
-            <Text className="text-white text-lg font-bold">AI Tutor</Text>
-            <Text className="text-green-400 text-xs font-bold uppercase tracking-wider">
+            <Text className="text-brand-navy dark:text-white text-xl font-bold">
+              AI Tutor
+            </Text>
+            <Text className="text-brand-lime text-xs font-bold uppercase tracking-widest mt-0.5">
               Online
             </Text>
           </View>
         </View>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="bg-neutral-900 p-2 rounded-full"
+          className="bg-white dark:bg-brand-dark p-2.5 rounded-full shadow-sm"
         >
-          <X size={20} color="#ffffff" />
+          <X size={20} color={Platform.OS === "ios" ? "#000" : "#8A88A4"} />
         </TouchableOpacity>
       </View>
 
@@ -158,12 +170,12 @@ export default function AITutorModal() {
         showsVerticalScrollIndicator={false}
       />
 
-      <View className="px-6 py-4 border-t border-neutral-900 bg-black pb-10">
-        <View className="flex-row items-center bg-neutral-900 rounded-2xl border border-neutral-800 p-2">
+      <View className="px-6 py-4 border-t border-gray-200 dark:border-brand-dark bg-brand-light dark:bg-brand-navy pb-10">
+        <View className="flex-row items-center bg-white dark:bg-brand-dark rounded-3xl border border-transparent dark:border-white/5 p-2 shadow-sm">
           <TextInput
-            className="flex-1 text-white text-base px-4 py-3"
+            className="flex-1 text-brand-navy dark:text-white text-base font-medium px-4 py-3"
             placeholder="Ask a question..."
-            placeholderTextColor="#525252"
+            placeholderTextColor="#8A88A4"
             value={input}
             onChangeText={setInput}
             multiline
@@ -172,14 +184,33 @@ export default function AITutorModal() {
           <TouchableOpacity
             onPress={sendMessage}
             disabled={!input.trim() || isLoading}
-            className={`w-12 h-12 rounded-xl items-center justify-center ${!input.trim() ? "bg-neutral-800" : "bg-white"}`}
+            className={`w-12 h-12 rounded-2xl items-center justify-center shadow-sm ${
+              !input.trim()
+                ? "bg-gray-100 dark:bg-[#232042]"
+                : "bg-brand-navy dark:bg-brand-lime"
+            }`}
           >
             {isLoading ? (
-              <ActivityIndicator size="small" color="#000" />
+              <ActivityIndicator
+                size="small"
+                color={
+                  !input.trim()
+                    ? "#8A88A4"
+                    : Platform.OS === "ios"
+                      ? "#fff"
+                      : "#000"
+                }
+              />
             ) : (
               <Send
                 size={20}
-                color={!input.trim() ? "#525252" : "#000"}
+                color={
+                  !input.trim()
+                    ? "#8A88A4"
+                    : Platform.OS === "ios"
+                      ? "#fff"
+                      : "#000"
+                }
                 className="ml-1"
               />
             )}

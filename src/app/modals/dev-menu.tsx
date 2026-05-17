@@ -2,11 +2,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Database, Server, Trash2, X } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import React, { useState } from "react";
-import { Alert, Switch, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function DevMenuModal() {
   const [isStaging, setIsStaging] = useState(false);
+  const { colorScheme } = useColorScheme();
 
   const handleWipeData = async () => {
     Alert.alert(
@@ -29,25 +38,46 @@ export default function DevMenuModal() {
   };
 
   return (
-    <View className="flex-1 bg-black pt-6 px-6">
-      <View className="flex-row items-center justify-between mb-8">
-        <Text className="text-white text-3xl font-extrabold text-red-500">
-          Developer Tools
-        </Text>
+    <View className="flex-1 bg-brand-light dark:bg-brand-navy pt-8 px-6">
+      <View className="flex-row items-center justify-between mb-10">
+        <View>
+          <Text className="text-brand-navy dark:text-white text-3xl font-black tracking-tight">
+            Developer
+          </Text>
+          <Text className="text-red-500 dark:text-brand-peach text-3xl font-black tracking-tight -mt-2">
+            Tools
+          </Text>
+        </View>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="bg-neutral-900 p-2 rounded-full"
+          className="bg-white dark:bg-brand-dark p-3 rounded-full shadow-sm"
         >
-          <X size={20} color="#ffffff" />
+          <X
+            size={20}
+            color={
+              colorScheme === "dark"
+                ? Platform.OS === "ios"
+                  ? "#fff"
+                  : "#8A88A4"
+                : "#2A264F"
+            }
+          />
         </TouchableOpacity>
       </View>
 
-      <View className="bg-neutral-900 p-4 rounded-2xl border border-neutral-800 flex-row items-center justify-between mb-4">
+      <View className="bg-white dark:bg-brand-dark p-5 rounded-[24px] shadow-sm border border-transparent dark:border-white/5 flex-row items-center justify-between mb-4">
         <View className="flex-row items-center">
-          <Server size={20} color="#a3a3a3" />
-          <View className="ml-3">
-            <Text className="text-white font-bold">API Environment</Text>
-            <Text className="text-neutral-500 text-xs">
+          <View className="bg-brand-light dark:bg-[#232042] p-2.5 rounded-xl">
+            <Server
+              size={20}
+              color={colorScheme === "dark" ? "#C6F432" : "#2A264F"}
+            />
+          </View>
+          <View className="ml-4">
+            <Text className="text-brand-navy dark:text-white font-bold text-base">
+              API Environment
+            </Text>
+            <Text className="text-gray-500 dark:text-brand-gray text-xs mt-0.5">
               {isStaging ? "staging.freeapi.app" : "api.freeapi.app"}
             </Text>
           </View>
@@ -55,16 +85,30 @@ export default function DevMenuModal() {
         <Switch
           value={isStaging}
           onValueChange={setIsStaging}
-          trackColor={{ false: "#3f3f46", true: "#ef4444" }}
+          trackColor={{ false: "#E5E7EB", true: "#C6F432" }}
+          thumbColor={
+            Platform.OS === "ios"
+              ? "#FFFFFF"
+              : colorScheme === "dark"
+                ? "#2A264F"
+                : "#FFFFFF"
+          }
         />
       </View>
 
-      <View className="bg-neutral-900 p-4 rounded-2xl border border-neutral-800 flex-row items-center justify-between mb-8">
+      <View className="bg-white dark:bg-brand-dark p-5 rounded-[24px] shadow-sm border border-transparent dark:border-white/5 flex-row items-center justify-between mb-10">
         <View className="flex-row items-center">
-          <Database size={20} color="#a3a3a3" />
-          <View className="ml-3">
-            <Text className="text-white font-bold">Mock Analytics</Text>
-            <Text className="text-neutral-500 text-xs">
+          <View className="bg-brand-light dark:bg-[#232042] p-2.5 rounded-xl">
+            <Database
+              size={20}
+              color={colorScheme === "dark" ? "#C6F432" : "#2A264F"}
+            />
+          </View>
+          <View className="ml-4">
+            <Text className="text-brand-navy dark:text-white font-bold text-base">
+              Mock Analytics
+            </Text>
+            <Text className="text-gray-500 dark:text-brand-gray text-xs mt-0.5">
               Prevent polluting prod data
             </Text>
           </View>
@@ -72,16 +116,26 @@ export default function DevMenuModal() {
         <Switch
           value={true}
           onValueChange={() => {}}
-          trackColor={{ true: "#ef4444" }}
+          trackColor={{ true: "#C6F432" }}
+          thumbColor={
+            Platform.OS === "ios"
+              ? "#FFFFFF"
+              : colorScheme === "dark"
+                ? "#2A264F"
+                : "#FFFFFF"
+          }
         />
       </View>
 
       <TouchableOpacity
         onPress={handleWipeData}
-        className="bg-red-500/20 py-4 rounded-xl flex-row items-center justify-center border border-red-500/50 active:opacity-80"
+        className="bg-red-50 dark:bg-red-500/10 py-5 rounded-[24px] flex-row items-center justify-center border border-red-200 dark:border-red-500/20 active:opacity-70 shadow-sm"
       >
-        <Trash2 size={20} color="#ef4444" />
-        <Text className="text-red-500 font-bold text-lg ml-2">
+        <Trash2
+          size={20}
+          color={colorScheme === "dark" ? "#F87171" : "#DC2626"}
+        />
+        <Text className="text-red-600 dark:text-red-400 font-bold text-lg ml-3">
           Wipe Local State & Restart
         </Text>
       </TouchableOpacity>

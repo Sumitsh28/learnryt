@@ -5,15 +5,21 @@ import {
   BookOpen,
   Camera,
   ChevronRight,
+  Flame,
   LogOut,
+  Moon,
   Settings,
   Shield,
+  Sun,
 } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   ScrollView,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -27,6 +33,8 @@ export default function ProfileScreen() {
   const { getUserBookmarks } = useBookmarks();
   const userBookmarks = getUserBookmarks(user?._id);
   const [isUploading, setIsUploading] = useState(false);
+
+  const { colorScheme, toggleColorScheme } = useColorScheme();
 
   const handleImagePick = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -86,39 +94,52 @@ export default function ProfileScreen() {
     title,
     destructive = false,
     onPress,
+    rightElement,
   }: any) => (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center justify-between py-4 border-b border-neutral-900 active:opacity-70"
+      activeOpacity={0.7}
+      disabled={!onPress}
+      className="flex-row items-center justify-between bg-white dark:bg-brand-dark px-5 py-4 mb-3 rounded-2xl shadow-sm border border-transparent dark:border-white/5"
     >
       <View className="flex-row items-center">
         <View
-          className={`p-2 rounded-lg ${destructive ? "bg-red-500/10" : "bg-neutral-900"}`}
+          className={`p-2.5 rounded-xl ${destructive ? "bg-red-500/10" : "bg-brand-light dark:bg-[#232042]"}`}
         >
-          <Icon size={20} color={destructive ? "#ef4444" : "#a3a3a3"} />
+          <Icon
+            size={20}
+            color={
+              destructive
+                ? "#ef4444"
+                : colorScheme === "dark"
+                  ? "#C6F432"
+                  : "#2A264F"
+            }
+          />
         </View>
         <Text
-          className={`ml-4 text-base font-medium ${destructive ? "text-red-500" : "text-white"}`}
+          className={`ml-4 text-base font-bold ${destructive ? "text-red-500" : "text-brand-navy dark:text-white"}`}
         >
           {title}
         </Text>
       </View>
-      <ChevronRight size={20} color="#525252" />
+      {rightElement ? rightElement : <ChevronRight size={20} color="#8A88A4" />}
     </TouchableOpacity>
   );
 
   return (
     <ScrollView
-      className="flex-1 bg-black"
-      contentContainerStyle={{ paddingBottom: 40, paddingTop: 40 }}
+      className="flex-1 bg-brand-light dark:bg-brand-navy"
+      contentContainerStyle={{ paddingBottom: 120, paddingTop: 60 }}
+      showsVerticalScrollIndicator={false}
     >
-      <View className="px-6 pt-10 pb-8 items-center border-b border-neutral-900">
+      <View className="px-6 pb-8 items-center">
         <TouchableOpacity
           onPress={handleImagePick}
           disabled={isUploading}
-          className="relative mb-4"
+          className="relative mb-4 shadow-sm"
         >
-          <View className="w-28 h-28 rounded-full bg-neutral-900 border-2 border-neutral-800 overflow-hidden items-center justify-center">
+          <View className="w-32 h-32 rounded-[40px] bg-white dark:bg-brand-dark border-4 border-white dark:border-brand-dark overflow-hidden items-center justify-center">
             {user?.avatar?.url ? (
               <Image
                 source={{ uri: user.avatar.url }}
@@ -127,71 +148,99 @@ export default function ProfileScreen() {
                 cachePolicy="memory-disk"
               />
             ) : (
-              <Text className="text-neutral-500 text-4xl font-bold uppercase">
+              <Text className="text-gray-400 dark:text-brand-gray text-5xl font-bold uppercase">
                 {user?.username?.charAt(0) || "?"}
               </Text>
             )}
           </View>
 
-          <View className="absolute bottom-0 right-0 bg-white p-2 rounded-full border-4 border-black shadow-lg">
+          <View className="absolute -bottom-2 -right-2 bg-brand-lime p-3 rounded-2xl border-4 border-brand-light dark:border-brand-navy shadow-lg">
             {isUploading ? (
-              <ActivityIndicator size="small" color="#000" />
+              <ActivityIndicator size="small" color="#2A264F" />
             ) : (
-              <Camera size={16} color="#000" />
+              <Camera size={18} color="#2A264F" />
             )}
           </View>
         </TouchableOpacity>
 
-        <Text className="text-white text-2xl font-bold">
+        <Text className="text-brand-navy dark:text-white text-3xl font-black tracking-tight mt-2">
           {user?.username || "Learner"}
         </Text>
-        <Text className="text-neutral-400 mt-1">
+        <Text className="text-gray-500 dark:text-brand-gray font-medium mt-1">
           {user?.email || "No email provided"}
         </Text>
 
-        <View className="mt-4 bg-neutral-900 px-4 py-1.5 rounded-full border border-neutral-800">
-          <Text className="text-neutral-300 text-xs font-bold uppercase tracking-widest">
+        <View className="mt-4 bg-brand-navy dark:bg-brand-peach px-5 py-2 rounded-full shadow-sm">
+          <Text className="text-white dark:text-brand-navy text-xs font-bold uppercase tracking-widest">
             {user?.role || "USER"}
           </Text>
         </View>
       </View>
 
-      <View className="flex-row px-6 py-6 border-b border-neutral-900">
-        <View className="flex-1 items-center border-r border-neutral-900">
-          <BookOpen size={24} color="#ffffff" className="mb-2" />
-          <Text className="text-white text-2xl font-bold">
+      <View className="flex-row px-4 mb-6 justify-between gap-3">
+        <View className="flex-1 bg-white dark:bg-brand-dark rounded-[24px] p-4 items-center shadow-sm border border-transparent dark:border-white/5">
+          <BookOpen
+            size={24}
+            color={colorScheme === "dark" ? "#C6F432" : "#2A264F"}
+            className="mb-2"
+          />
+          <Text className="text-brand-navy dark:text-white text-2xl font-black">
             {userBookmarks.length}
           </Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+          <Text className="text-gray-500 dark:text-brand-gray text-[10px] mt-1 uppercase font-bold tracking-wider text-center">
             Courses{"\n"}Saved
           </Text>
         </View>
-        <View className="flex-1 items-center border-r border-neutral-900">
-          <Shield size={24} color="#ffffff" className="mb-2" />
-          <Text className="text-white text-2xl font-bold">
+
+        <View className="flex-1 bg-white dark:bg-brand-dark rounded-[24px] p-4 items-center shadow-sm border border-transparent dark:border-white/5">
+          <Shield size={24} color="#6E5DE7" className="mb-2" />
+          <Text className="text-brand-navy dark:text-white text-2xl font-black">
             {userBookmarks.length > 0 ? "12%" : "0%"}
           </Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+          <Text className="text-gray-500 dark:text-brand-gray text-[10px] mt-1 uppercase font-bold tracking-wider text-center">
             Overall{"\n"}Progress
           </Text>
         </View>
-        <View className="flex-1 items-center">
-          <Text className="text-white text-2xl font-bold mt-1 mb-1">🔥</Text>
-          <Text className="text-white text-2xl font-bold">3</Text>
-          <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
+
+        <View className="flex-1 bg-white dark:bg-brand-dark rounded-[24px] p-4 items-center shadow-sm border border-transparent dark:border-white/5">
+          <Flame size={24} color="#F9C0AB" className="mb-2" />
+          <Text className="text-brand-navy dark:text-white text-2xl font-black">
+            3
+          </Text>
+          <Text className="text-gray-500 dark:text-brand-gray text-[10px] mt-1 uppercase font-bold tracking-wider text-center">
             Day{"\n"}Streak
           </Text>
         </View>
       </View>
 
-      <View className="px-6 py-4">
-        <Text className="text-neutral-500 text-xs font-bold uppercase tracking-wider mb-2 mt-4">
-          Account Settings
+      <View className="px-6 py-2">
+        <Text className="text-gray-400 dark:text-brand-gray text-xs font-bold uppercase tracking-wider mb-3 ml-2">
+          Preferences
         </Text>
-        <MenuRow icon={Settings} title="Preferences" onPress={() => {}} />
+
+        <MenuRow
+          icon={colorScheme === "dark" ? Moon : Sun}
+          title="Dark Mode"
+          rightElement={
+            <Switch
+              value={colorScheme === "dark"}
+              onValueChange={toggleColorScheme}
+              trackColor={{ false: "#E5E7EB", true: "#C6F432" }}
+              thumbColor={
+                Platform.OS === "ios"
+                  ? "#FFFFFF"
+                  : colorScheme === "dark"
+                    ? "#2A264F"
+                    : "#FFFFFF"
+              }
+            />
+          }
+        />
+
+        <MenuRow icon={Settings} title="Account Settings" onPress={() => {}} />
         <MenuRow icon={Bell} title="Notifications" onPress={() => {}} />
 
-        <Text className="text-neutral-500 text-xs font-bold uppercase tracking-wider mb-2 mt-8">
+        <Text className="text-gray-400 dark:text-brand-gray text-xs font-bold uppercase tracking-wider mb-3 mt-6 ml-2">
           System
         </Text>
         <MenuRow

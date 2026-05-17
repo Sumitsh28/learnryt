@@ -49,7 +49,6 @@ export default function LoginScreen() {
       );
 
       const { user, accessToken, refreshToken } = response.data.data;
-
       await login(user, accessToken, refreshToken);
     } catch (error: any) {
       console.error("❌ LOGIN FAILED:", error.response?.data);
@@ -60,27 +59,27 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-black px-6 justify-center"
+      className="flex-1 bg-brand-light dark:bg-brand-navy px-6 justify-center"
     >
       <View className="mb-10">
-        <Text className="text-white text-4xl font-bold tracking-tight mb-2">
+        <Text className="text-brand-navy dark:text-white text-4xl font-black tracking-tight mb-2">
           Welcome Back
         </Text>
-        <Text className="text-gray-400 text-base">
+        <Text className="text-gray-500 dark:text-brand-gray text-base font-medium">
           Sign in to continue your journey.
         </Text>
       </View>
 
       {serverError && (
-        <View className="bg-red-500/20 p-4 rounded-xl border border-red-500/50 mb-6">
-          <Text className="text-red-400 text-sm font-medium">
+        <View className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 mb-6">
+          <Text className="text-red-500 dark:text-red-400 text-sm font-bold text-center">
             {serverError}
           </Text>
         </View>
       )}
 
       <View className="mb-6">
-        <Text className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-2">
+        <Text className="text-gray-400 dark:text-brand-gray text-xs uppercase font-bold tracking-wider mb-2 ml-1">
           Email
         </Text>
         <Controller
@@ -88,11 +87,13 @@ export default function LoginScreen() {
           name="email"
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
-              className={`bg-neutral-900 text-white p-4 rounded-xl border ${
-                errors.email ? "border-red-500" : "border-neutral-800"
+              className={`bg-white dark:bg-brand-dark text-brand-navy dark:text-white p-4 rounded-2xl border shadow-sm ${
+                errors.email
+                  ? "border-red-500"
+                  : "border-gray-200 dark:border-white/5"
               }`}
               placeholder="name@example.com"
-              placeholderTextColor="#525252"
+              placeholderTextColor="#8A88A4"
               autoCapitalize="none"
               keyboardType="email-address"
               onBlur={onBlur}
@@ -102,14 +103,14 @@ export default function LoginScreen() {
           )}
         />
         {errors.email && (
-          <Text className="text-red-400 text-xs mt-2">
+          <Text className="text-red-500 dark:text-red-400 text-xs mt-2 ml-1 font-medium">
             {errors.email.message}
           </Text>
         )}
       </View>
 
       <View className="mb-8">
-        <Text className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-2">
+        <Text className="text-gray-400 dark:text-brand-gray text-xs uppercase font-bold tracking-wider mb-2 ml-1">
           Password
         </Text>
         <Controller
@@ -117,11 +118,13 @@ export default function LoginScreen() {
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
-              className={`bg-neutral-900 text-white p-4 rounded-xl border ${
-                errors.password ? "border-red-500" : "border-neutral-800"
+              className={`bg-white dark:bg-brand-dark text-brand-navy dark:text-white p-4 rounded-2xl border shadow-sm ${
+                errors.password
+                  ? "border-red-500"
+                  : "border-gray-200 dark:border-white/5"
               }`}
               placeholder="••••••••"
-              placeholderTextColor="#525252"
+              placeholderTextColor="#8A88A4"
               secureTextEntry
               onBlur={onBlur}
               onChangeText={onChange}
@@ -130,7 +133,7 @@ export default function LoginScreen() {
           )}
         />
         {errors.password && (
-          <Text className="text-red-400 text-xs mt-2">
+          <Text className="text-red-500 dark:text-red-400 text-xs mt-2 ml-1 font-medium">
             {errors.password.message}
           </Text>
         )}
@@ -139,22 +142,30 @@ export default function LoginScreen() {
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
-        className={`bg-white p-4 rounded-xl items-center justify-center ${
+        className={`bg-brand-navy dark:bg-brand-lime py-5 rounded-full items-center justify-center shadow-lg ${
           isSubmitting ? "opacity-70" : "active:opacity-80"
         }`}
       >
         {isSubmitting ? (
-          <ActivityIndicator color="#000" />
+          <ActivityIndicator
+            color={Platform.OS === "ios" ? "#ffffff" : "#000000"}
+          />
         ) : (
-          <Text className="text-black font-bold text-lg">Sign In</Text>
+          <Text className="text-white dark:text-brand-navy font-black text-lg tracking-wide">
+            Sign In
+          </Text>
         )}
       </TouchableOpacity>
 
-      <View className="flex-row justify-center mt-8">
-        <Text className="text-gray-400">New here? </Text>
+      <View className="flex-row justify-center mt-10">
+        <Text className="text-gray-500 dark:text-brand-gray font-medium">
+          New here?{" "}
+        </Text>
         <Link href="/(auth)/register" asChild>
           <TouchableOpacity>
-            <Text className="text-white font-bold">Create an account</Text>
+            <Text className="text-brand-navy dark:text-brand-peach font-bold">
+              Create an account
+            </Text>
           </TouchableOpacity>
         </Link>
       </View>
