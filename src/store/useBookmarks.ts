@@ -4,45 +4,69 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface BookmarkState {
-  bookmarkedIds: string[];
-  hasReachedMilestone: boolean;
-  toggleBookmark: (courseId: string) => void;
-  isBookmarked: (courseId: string) => boolean;
+  bookmarksByUser: Record<string, string[]>;
+
+  milestonesReached: string[];
+
+  toggleBookmark: (userId: string, courseId: string) => void;
+  isBookmarked: (userId: string | undefined, courseId: string) => boolean;
+  getUserBookmarks: (userId: string | undefined) => string[];
 }
 
 export const useBookmarks = create<BookmarkState>()(
   persist(
     (set, get) => ({
-      bookmarkedIds: [],
-      hasReachedMilestone: false,
+      bookmarksByUser: {},
+      milestonesReached: [],
 
-      toggleBookmark: async (courseId) => {
+      toggleBookmark: (userId, courseId) => {
+        if (!userId) return; // Failsafe
+
         const state = get();
-        const exists = state.bookmarkedIds.includes(courseId);
+        const userBookmarks = state.bookmarksByUser[userId] || [];
+        const exists = userBookmarks.includes(courseId);
 
-        let newBookmarks;
-        if (exists) {
-          newBookmarks = state.bookmarkedIds.filter((id) => id !== courseId);
-        } else {
-          newBookmarks = [...state.bookmarkedIds, courseId];
+        const newBookmarks = exists
+          ? userBookmarks.filter((id) => id !== courseId)
+          : [...userBookmarks, courseId];
 
-          if (newBookmarks.length === 5 && !state.hasReachedMilestone) {
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                title: "Curator Status Achieved! 🏆",
-                body: "You've bookmarked 5 courses. You're building an incredible learning library.",
-              },
-              trigger: null,
-            });
-            set({ hasReachedMilestone: true });
-          }
+        set((state) => ({
+          bookmarksByUser: {
+            ...state.bookmarksByUser,
+            [userId]: newBookmarks,
+          },
+        }));
+
+        if (
+          !exists &&
+          newBookmarks.length >= 5 &&
+          !state.milestonesReached.includes(userId)
+        ) {
+          set((state) => ({
+            milestonesReached: [...state.milestonesReached, userId],
+          }));
+
+          Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Curator Status Achieved! 🏆",
+              body: "You've bookmarked 5+ courses. You're building an incredible learning library.",
+            },
+            trigger: null,
+          }).catch((err) => {
+            console.log("Notification bypassed:", err.message);
+          });
         }
-
-        set({ bookmarkedIds: newBookmarks });
       },
 
-      isBookmarked: (courseId) => {
-        return get().bookmarkedIds.includes(courseId);
+      isBookmarked: (userId, courseId) => {
+        if (!userId) return false;
+        const userBookmarks = get().bookmarksByUser[userId] || [];
+        return userBookmarks.includes(courseId);
+      },
+
+      getUserBookmarks: (userId) => {
+        if (!userId) return [];
+        return get().bookmarksByUser[userId] || [];
       },
     }),
     {

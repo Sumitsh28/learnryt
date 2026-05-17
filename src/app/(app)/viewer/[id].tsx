@@ -2,8 +2,14 @@ import { useKeepAwake } from "expo-keep-awake";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { RefreshCw, X } from "lucide-react-native";
-import React, { useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { WebView } from "react-native-webview";
 
 export default function CourseViewerScreen() {
@@ -12,9 +18,11 @@ export default function CourseViewerScreen() {
   const [hasError, setHasError] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
+  const courseId = Array.isArray(id) ? id[0] : id;
+
   useKeepAwake();
 
-  React.useEffect(() => {
+  useEffect(() => {
     SecureStore.getItemAsync("accessToken").then(setToken);
   }, []);
 
@@ -44,7 +52,7 @@ export default function CourseViewerScreen() {
           </Text>
           <Text className="text-neutral-400 text-center mb-6">
             We couldn't load this course content. Please check your connection
-            or try again later.
+            or try again.
           </Text>
           <TouchableOpacity
             onPress={handleRetry}
@@ -69,9 +77,12 @@ export default function CourseViewerScreen() {
             <WebView
               source={{
                 uri: `https://en.wikipedia.org/wiki/React_Native`,
+
                 headers: {
                   Authorization: `Bearer ${token}`,
                   "X-App-Theme": "dark",
+                  "X-Course-Id": courseId as string,
+                  "X-Platform": Platform.OS,
                 },
               }}
               className="flex-1 bg-black"

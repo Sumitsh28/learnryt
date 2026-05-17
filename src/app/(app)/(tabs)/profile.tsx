@@ -24,7 +24,8 @@ import { useBookmarks } from "../../../store/useBookmarks";
 
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
-  const { bookmarkedIds } = useBookmarks();
+  const { getUserBookmarks } = useBookmarks();
+  const userBookmarks = getUserBookmarks(user?._id);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleImagePick = async () => {
@@ -159,16 +160,16 @@ export default function ProfileScreen() {
         <View className="flex-1 items-center border-r border-neutral-900">
           <BookOpen size={24} color="#ffffff" className="mb-2" />
           <Text className="text-white text-2xl font-bold">
-            {bookmarkedIds.length}
+            {userBookmarks.length}
           </Text>
           <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
-            Courses{"\n"}Enrolled
+            Courses{"\n"}Saved
           </Text>
         </View>
         <View className="flex-1 items-center border-r border-neutral-900">
           <Shield size={24} color="#ffffff" className="mb-2" />
           <Text className="text-white text-2xl font-bold">
-            {bookmarkedIds.length > 0 ? "12%" : "0%"}
+            {userBookmarks.length > 0 ? "12%" : "0%"}
           </Text>
           <Text className="text-neutral-500 text-xs mt-1 uppercase tracking-wider text-center">
             Overall{"\n"}Progress

@@ -1,3 +1,4 @@
+import { useAuth } from "@/store/useAuth";
 import { LegendList } from "@legendapp/list";
 import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
@@ -8,6 +9,7 @@ import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -37,26 +39,39 @@ const fetchCourses = async (): Promise<Course[]> => {
   const products = productsRes.data.data.data;
   const users = usersRes.data.data.data;
 
-  return products.map((product: any, index: number) => ({
-    id: product.id.toString(),
-    title: product.title,
-    description: product.description,
-    price: product.price,
-    thumbnail: product.thumbnail,
-    instructor: {
-      name: `${users[index]?.name?.first} ${users[index]?.name?.last}`,
-      avatar: users[index]?.picture?.medium,
-    },
-  }));
+  return products.map((product: any, index: number) => {
+    let cleanThumbnail = product.thumbnail;
+    if (product.thumbnail?.includes("product-images")) {
+      const category = product.category === "laptops" ? "laptop" : "smartphone";
+      cleanThumbnail = `https://images.unsplash.com/photo-${index === 0 ? "1517336714731-489689fd1ca8" : "1511707171634-5f897ff02aa9"}?auto=format&fit=crop&w=600&q=80`;
+    }
+
+    return {
+      id: product.id.toString(),
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      thumbnail: cleanThumbnail,
+      instructor: {
+        name: `${users[index]?.name?.first || "Prof."} ${users[index]?.name?.last || "Expert"}`,
+        avatar:
+          users[index]?.picture?.medium ||
+          "https://randomuser.me/api/portraits/thumb/men/1.jpg",
+      },
+    };
+  });
 };
 
 export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toggleBookmark, isBookmarked } = useBookmarks();
 
+  const { user } = useAuth();
+
   const {
     data: courses,
     isLoading,
+    isFetching,
     isError,
     refetch,
   } = useQuery({
@@ -73,8 +88,7 @@ export default function DiscoverScreen() {
   }, [courses, searchQuery]);
 
   const renderItem = ({ item }: { item: Course }) => {
-    const bookmarked = isBookmarked(item.id);
-
+    const bookmarked = isBookmarked(user?._id, item.id);
     return (
       <Link href={`/(app)/details/${item.id}`} asChild>
         <TouchableOpacity className="mb-6 bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden active:opacity-90">
@@ -98,14 +112,17 @@ export default function DiscoverScreen() {
               onPress={() => {
                 if (Platform.OS !== "web")
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                toggleBookmark(item.id);
+                if (user?._id) toggleBookmark(user._id, item.id);
               }}
             >
-              <Bookmark size={18} />
+              <Bookmark
+                size={18}
+                color={bookmarked ? "#ffffff" : "#a3a3a3"}
+                fill={bookmarked ? "#ffffff" : "transparent"}
+              />
             </TouchableOpacity>
           </View>
 
-          {/* Details */}
           <View className="p-4">
             <Text
               className="text-white text-lg font-bold mb-1"
@@ -144,7 +161,7 @@ export default function DiscoverScreen() {
       </View>
 
       <View className="flex-row items-center bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 mb-6">
-        <Search size={20} />
+        <Search size={20} color="#a3a3a3" />
         <TextInput
           className="flex-1 ml-3 text-white text-base"
           placeholder="Search courses..."
@@ -160,7 +177,7 @@ export default function DiscoverScreen() {
         </View>
       ) : isError ? (
         <View className="flex-1 items-center justify-center">
-          <WifiOff size={40} />
+          <WifiOff size={40} color="#525252" />
           <Text className="text-white text-lg font-bold mb-2">
             Network Error
           </Text>
@@ -182,6 +199,13 @@ export default function DiscoverScreen() {
           estimatedItemSize={320}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isLoading}
+              onRefresh={refetch}
+              tintColor="#ffffff"
+            />
+          }
         />
       )}
     </View>

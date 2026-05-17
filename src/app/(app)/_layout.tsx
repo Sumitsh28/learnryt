@@ -53,6 +53,9 @@ export default function AppLayout() {
             tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
           }}
         />
+
+        <Tabs.Screen name="details/[id]" options={{ href: null }} />
+        <Tabs.Screen name="viewer/[id]" options={{ href: null }} />
       </Tabs>
     </>
   );
