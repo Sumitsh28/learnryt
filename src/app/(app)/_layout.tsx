@@ -2,10 +2,12 @@ import OfflineBanner from "@/components/OfflineBanner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Tabs } from "expo-router";
 import { Compass, Folder, Home } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import { Platform } from "react-native";
 
 export default function AppLayout() {
   useNotifications();
+  const { colorScheme } = useColorScheme();
 
   return (
     <>
@@ -14,18 +16,21 @@ export default function AppLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#2A264F",
+            backgroundColor: colorScheme === "dark" ? "#2A264F" : "#FFFFFF",
             position: "absolute",
             bottom: Platform.OS === "ios" ? 30 : 20,
-            left: 20,
-            right: 20,
+
+            left: 50,
+            right: 50,
+
             height: 70,
             borderRadius: 40,
             borderTopWidth: 0,
-            elevation: 10,
+
+            elevation: colorScheme === "dark" ? 10 : 15,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 10 },
-            shadowOpacity: 0.3,
+            shadowOpacity: colorScheme === "dark" ? 0.3 : 0.08,
             shadowRadius: 20,
             paddingBottom: 0,
           },
@@ -39,7 +44,8 @@ export default function AppLayout() {
             justifyContent: "center",
             alignItems: "center",
           },
-          tabBarActiveTintColor: "#C6F432",
+
+          tabBarActiveTintColor: colorScheme === "dark" ? "#C6F432" : "#483DE0",
           tabBarInactiveTintColor: "#8A88A4",
           tabBarShowLabel: false,
         }}

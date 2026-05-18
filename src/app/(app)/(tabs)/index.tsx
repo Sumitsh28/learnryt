@@ -84,6 +84,9 @@ export default function DiscoverScreen() {
   const { checkIsEnrolled } = useEnrollments();
   const { user } = useAuth();
 
+  const [isSmartSearching, setIsSmartSearching] = useState(false);
+  const [smartSearchIds, setSmartSearchIds] = useState<string[] | null>(null);
+
   const {
     data: courses,
     isLoading,
@@ -95,13 +98,85 @@ export default function DiscoverScreen() {
     queryFn: fetchCourses,
   });
 
+  const handleSmartSearch = async () => {
+    if (!searchQuery.trim() || !courses) return;
+    setIsSmartSearching(true);
+
+    if (Platform.OS !== "web")
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    try {
+      const miniCourses = courses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        desc: c.description,
+      }));
+
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.EXPO_PUBLIC_OPENAI_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content: `You are a semantic search engine. The user will provide a query and a JSON list of courses. 
+              Find the most relevant courses based on the intent of the query. 
+              Return ONLY a valid JSON array of the matching course 'id' strings (e.g., ["1", "5", "12"]). 
+              Do NOT include markdown formatting, backticks, or any explanations.`,
+              },
+              {
+                role: "user",
+                content: `Query: "${searchQuery}"\n\nCourses: ${JSON.stringify(miniCourses)}`,
+              },
+            ],
+            temperature: 0.1,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      let botText = data.choices[0].message.content;
+      botText = botText
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      const ids = JSON.parse(botText);
+      setSmartSearchIds(ids);
+
+      if (Platform.OS !== "web")
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("Smart Search Error:", error);
+      if (Platform.OS !== "web")
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsSmartSearching(false);
+    }
+  };
+
   const filteredCourses = useMemo(() => {
     if (!courses) return [];
+
+    if (smartSearchIds) {
+      return courses.filter((course) => smartSearchIds.includes(course.id));
+    }
+
     if (!searchQuery) return courses;
-    return courses.filter((course) =>
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()),
+
+    return courses.filter(
+      (course) =>
+        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.description.toLowerCase().includes(searchQuery.toLowerCase()),
     );
-  }, [courses, searchQuery]);
+  }, [courses, searchQuery, smartSearchIds]);
 
   const renderItem = ({ item }: { item: Course }) => {
     const bookmarked = isBookmarked(user?._id, item.id);
@@ -110,7 +185,7 @@ export default function DiscoverScreen() {
 
     return (
       <Link href={`/(app)/details/${item.id}`} asChild>
-        <TouchableOpacity className="w-full bg-white dark:bg-brand-dark rounded-[32px] p-5 mb-6 shadow-sm active:opacity-90">
+        <TouchableOpacity className="w-full bg-white dark:bg-brand-dark rounded-[32px] p-5 mb-6 shadow-sm active:opacity-90 border border-transparent dark:border-white/5">
           <View className="w-full h-44 bg-brand-light dark:bg-[#232042] rounded-[24px] mb-5 overflow-hidden relative">
             <Image
               source={{
@@ -181,7 +256,6 @@ export default function DiscoverScreen() {
             <Text className="text-brand-navy dark:text-brand-peach font-bold text-base">
               {isEnrolled ? "Continue ➔" : "View Details ➔"}
             </Text>
-
             {isEnrolled && (
               <View className="w-11 h-11 rounded-full border-[2.5px] border-brand-lime items-center justify-center">
                 <Text className="text-brand-navy dark:text-white text-xs font-bold">
@@ -204,7 +278,6 @@ export default function DiscoverScreen() {
               {user?.username?.charAt(0) || "U"}
             </Text>
           </View>
-
           <View className="ml-3">
             <Text className="text-gray-500 dark:text-brand-gray text-sm font-medium">
               Hello,
@@ -231,9 +304,32 @@ export default function DiscoverScreen() {
             placeholder="Search course..."
             placeholderTextColor="#8A88A4"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={(txt) => {
+              setSearchQuery(txt);
+              setSmartSearchIds(null);
+            }}
+            onSubmitEditing={handleSmartSearch}
           />
+
+          {searchQuery.trim().length > 0 && (
+            <TouchableOpacity
+              onPress={handleSmartSearch}
+              disabled={isSmartSearching}
+              className={`p-2 rounded-xl ml-2 ${isSmartSearching ? "bg-transparent" : "bg-brand-lime/20 dark:bg-[#232042]"}`}
+            >
+              {isSmartSearching ? (
+                <ActivityIndicator size="small" color="#C6F432" />
+              ) : (
+                <Sparkles
+                  size={16}
+                  color="#000"
+                  fill={Platform.OS === "ios" ? "#000" : "#C6F432"}
+                />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
+
         <TouchableOpacity className="h-14 w-14 bg-white dark:bg-brand-dark items-center justify-center rounded-[20px] shadow-sm border border-transparent dark:border-white/5">
           <SlidersHorizontal size={22} color="#8A88A4" />
         </TouchableOpacity>
@@ -258,11 +354,7 @@ export default function DiscoverScreen() {
                 }`}
               >
                 <Text
-                  className={`font-bold text-sm ${
-                    isActive
-                      ? "text-white dark:text-brand-navy"
-                      : "text-gray-500 dark:text-brand-gray"
-                  }`}
+                  className={`font-bold text-sm ${isActive ? "text-white dark:text-brand-navy" : "text-gray-500 dark:text-brand-gray"}`}
                 >
                   {cat}
                 </Text>
@@ -272,6 +364,16 @@ export default function DiscoverScreen() {
         </ScrollView>
       </View>
 
+      {smartSearchIds && (
+        <View className="flex-row items-center mb-4 px-2">
+          <Sparkles size={16} color="#C6F432" fill="#C6F432" />
+          <Text className="text-brand-navy dark:text-brand-peach font-bold text-sm ml-2">
+            AI Results for "{searchQuery}"
+          </Text>
+        </View>
+      )}
+
+      {/* 📜 Content List */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#C6F432" />
@@ -282,9 +384,6 @@ export default function DiscoverScreen() {
           <Text className="text-brand-navy dark:text-white text-lg font-bold mt-4 mb-2">
             Network Error
           </Text>
-          <Text className="text-gray-500 dark:text-brand-gray text-center mb-6">
-            Check your connection.
-          </Text>
           <TouchableOpacity
             onPress={() => refetch()}
             className="bg-brand-navy dark:bg-brand-lime px-6 py-3 rounded-full"
@@ -293,6 +392,13 @@ export default function DiscoverScreen() {
               Try Again
             </Text>
           </TouchableOpacity>
+        </View>
+      ) : filteredCourses.length === 0 ? (
+        <View className="flex-1 items-center justify-center mt-10">
+          <Search size={40} color="#8A88A4" opacity={0.5} />
+          <Text className="text-gray-500 dark:text-brand-gray font-bold mt-4 text-center px-10">
+            No courses found matching that criteria.
+          </Text>
         </View>
       ) : (
         <LegendList
