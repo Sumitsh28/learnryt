@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
+import { Alert } from "react-native"; // ✅ Added for Expo Go workaround
+// import * as Notifications from "expo-notifications";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -46,15 +47,21 @@ export const useBookmarks = create<BookmarkState>()(
             milestonesReached: [...state.milestonesReached, userId],
           }));
 
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Curator Status Achieved! 🏆",
-              body: "You've bookmarked 5+ courses. You're building an incredible learning library.",
-            },
-            trigger: null,
-          }).catch((err) => {
-            console.log("Notification bypassed:", err.message);
-          });
+          // Notifications.scheduleNotificationAsync({
+          //   content: {
+          //     title: "Curator Status Achieved! 🏆",
+          //     body: "You've bookmarked 5+ courses. You're building an incredible learning library.",
+          //   },
+          //   trigger: null,
+          // }).catch((err) => {
+          //   console.log("Notification bypassed:", err.message);
+          // });
+
+          // ✅ EXPO GO WORKAROUND: In-App Alert acts as the notification
+          Alert.alert(
+            "Curator Status Achieved! 🏆",
+            "You've bookmarked 5+ courses. You're building an incredible learning library.",
+          );
         }
       },
 

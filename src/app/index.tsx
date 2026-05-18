@@ -2,7 +2,7 @@
 
 import * as LocalAuthentication from "expo-local-authentication";
 import { Redirect } from "expo-router";
-import JailMonkey from "jail-monkey";
+// import JailMonkey from "jail-monkey";
 import { Fingerprint, ShieldAlert } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
@@ -18,14 +18,14 @@ export default function BootScreen() {
   const { colorScheme } = useColorScheme();
 
   const checkDeviceSecurity = () => {
-    const isJailbroken = JailMonkey.isJailBroken();
-    const canMockLocation = JailMonkey.canMockLocation();
-    const isHooked = JailMonkey.hookDetected();
+    // const isJailbroken = JailMonkey.isJailBroken();
+    // const canMockLocation = JailMonkey.canMockLocation();
+    // const isHooked = JailMonkey.hookDetected();
 
-    if (isJailbroken || canMockLocation || isHooked) {
-      setIsDeviceCompromised(true);
-      return false;
-    }
+    // if (isJailbroken || canMockLocation || isHooked) {
+    //   setIsDeviceCompromised(true);
+    //   return false;
+    // }
     return true;
   };
 
