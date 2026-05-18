@@ -1,0 +1,32 @@
+name: 🛡️ CI - Test & Lint
+
+on:
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  validate:
+    name: Typecheck, Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Setup Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔎 Type Check
+        run: npx tsc --noEmit
+
+      - name: 🧹 Lint Code
+        run: npm run lint
+
+      - name: 🧪 Run Unit & Integration Tests
+        run: npm run test:coverage
