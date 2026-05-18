@@ -1,17 +1,17 @@
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
+// import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
-import { Alert, AppState, Platform } from "react-native";
+import { AppState, Platform } from "react-native";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//     shouldShowBanner: true,
+//     shouldShowList: true,
+//   }),
+// });
 
 export const useNotifications = () => {
   const appState = useRef(AppState.currentState);
@@ -24,6 +24,9 @@ export const useNotifications = () => {
       return false;
     }
 
+    return true;
+
+    /*
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();
 
@@ -51,6 +54,7 @@ export const useNotifications = () => {
 
     const { status } = await Notifications.requestPermissionsAsync();
     return status === "granted";
+    */
   };
 
   useEffect(() => {
@@ -58,24 +62,24 @@ export const useNotifications = () => {
       "change",
       async (nextAppState) => {
         if (appState.current.match(/active/) && nextAppState === "background") {
-          await Notifications.scheduleNotificationAsync({
-            identifier: "inactivity-reminder",
-            content: {
-              title: "Don't break your momentum! 🧠",
-              body: "You were doing great. Jump back in and finish your lesson.",
-              sound: true,
-            },
-            trigger: { seconds: 60 * 60 * 24 } as any,
-          });
+          // await Notifications.scheduleNotificationAsync({
+          //   identifier: "inactivity-reminder",
+          //   content: {
+          //     title: "Don't break your momentum! 🧠",
+          //     body: "You were doing great. Jump back in and finish your lesson.",
+          //     sound: true,
+          //   },
+          //   trigger: { seconds: 60 * 60 * 24 } as any,
+          // });
         }
 
         if (
           appState.current.match(/inactive|background/) &&
           nextAppState === "active"
         ) {
-          await Notifications.cancelScheduledNotificationAsync(
-            "inactivity-reminder",
-          );
+          // await Notifications.cancelScheduledNotificationAsync(
+          //   "inactivity-reminder",
+          // );
         }
 
         appState.current = nextAppState;

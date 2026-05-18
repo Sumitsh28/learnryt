@@ -290,7 +290,7 @@ export default function CourseDetailsScreen() {
           animatedButtonStyle,
           {
             position: "absolute",
-            bottom: Platform.OS === "ios" ? 110 : 70,
+            bottom: Platform.OS === "ios" ? 110 : 100,
             left: 24,
             right: 24,
             zIndex: 100,
