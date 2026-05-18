@@ -197,10 +197,12 @@ export default function DiscoverScreen() {
             />
 
             <TouchableOpacity
+              testID={`bookmark-${item.id}`}
               className="absolute top-4 right-4 bg-white/90 dark:bg-black/50 p-2.5 rounded-full backdrop-blur-md z-10"
               onPress={() => {
                 if (Platform.OS !== "web")
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
                 if (user?._id) toggleBookmark(user._id, item.id);
               }}
             >
