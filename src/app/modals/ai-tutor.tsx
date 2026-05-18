@@ -20,7 +20,14 @@ interface Message {
 }
 
 export default function AITutorModal() {
-  const { courseName } = useLocalSearchParams<{ courseName: string }>();
+  const { courseName, courseDescription, courseCategory, courseRating } =
+    useLocalSearchParams<{
+      courseName: string;
+      courseDescription: string;
+      courseCategory: string;
+      courseRating: string;
+    }>();
+
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,7 +35,7 @@ export default function AITutorModal() {
     {
       id: "1",
       role: "assistant",
-      content: `Hello! I am your elite AI Tutor. You are currently viewing the course: "${courseName || "this subject"}". What concepts can I clarify for you today?`,
+      content: `Hello! I am your elite AI Tutor for "${courseName || "this subject"}". I have reviewed the curriculum parameters, structure, and details for this ${courseCategory || "course"}. What concepts can I clarify for you today?`,
     },
   ]);
 
@@ -62,7 +69,7 @@ export default function AITutorModal() {
             messages: [
               {
                 role: "system",
-                content: `You are an expert, concise AI tutor for a premium learning app. The user is currently studying: ${courseName}. Keep responses under 3 short paragraphs. Be encouraging and highly technical.`,
+                content: `You are an expert, concise AI tutor for a premium learning app named Learnryt. The user is currently studying the course: "${courseName}". Course Metadata - Category: ${courseCategory}, Rating: ${courseRating}. Course Syllabus & Details: "${courseDescription}". Fully understand this background context and refer to these specific subject topics when explaining concepts. Keep responses under 3 short paragraphs. Be encouraging, precise, and highly technical.`,
               },
               ...messages.map((m) => ({ role: m.role, content: m.content })),
               { role: "user", content: userText },

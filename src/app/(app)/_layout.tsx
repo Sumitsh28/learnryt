@@ -30,7 +30,14 @@ export default function AppLayout() {
             paddingBottom: 0,
           },
           tabBarItemStyle: {
-            paddingVertical: 10,
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          },
+          tabBarIconStyle: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
           },
           tabBarActiveTintColor: "#C6F432",
           tabBarInactiveTintColor: "#8A88A4",
@@ -41,23 +48,21 @@ export default function AppLayout() {
           name="(tabs)/index"
           options={{
             title: "Discover",
-            tabBarIcon: ({ color, size }) => <Home color={color} size={24} />,
+            tabBarIcon: ({ color }) => <Home color={color} size={24} />,
           }}
         />
         <Tabs.Screen
           name="(tabs)/dashboard"
           options={{
             title: "Stats",
-            tabBarIcon: ({ color, size }) => <Folder color={color} size={24} />,
+            tabBarIcon: ({ color }) => <Folder color={color} size={24} />,
           }}
         />
         <Tabs.Screen
           name="(tabs)/profile"
           options={{
             title: "Profile",
-            tabBarIcon: ({ color, size }) => (
-              <Compass color={color} size={24} />
-            ),
+            tabBarIcon: ({ color }) => <Compass color={color} size={24} />,
           }}
         />
 

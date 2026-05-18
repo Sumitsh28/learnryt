@@ -3,12 +3,12 @@ import { LegendList } from "@legendapp/list";
 import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import {
   Bookmark,
-  LayoutGrid,
   Search,
   SlidersHorizontal,
+  Sparkles,
   WifiOff,
 } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
@@ -24,6 +24,7 @@ import {
 } from "react-native";
 import { apiClient } from "../../../api/client";
 import { useBookmarks } from "../../../store/useBookmarks";
+import { useEnrollments } from "../../../store/useEnrollments";
 
 export interface Course {
   id: string;
@@ -55,7 +56,7 @@ const fetchCourses = async (): Promise<Course[]> => {
 
   return products.map((product: any, index: number) => {
     let cleanThumbnail = product.thumbnail;
-    // Injecting cleaner placeholder images for the mock data
+
     if (product.thumbnail?.includes("product-images")) {
       cleanThumbnail = `https://images.unsplash.com/photo-${index % 2 === 0 ? "1517336714731-489689fd1ca8" : "1511707171634-5f897ff02aa9"}?auto=format&fit=crop&w=600&q=80`;
     }
@@ -80,6 +81,7 @@ export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All courses");
   const { toggleBookmark, isBookmarked } = useBookmarks();
+  const { checkIsEnrolled } = useEnrollments();
   const { user } = useAuth();
 
   const {
@@ -103,24 +105,24 @@ export default function DiscoverScreen() {
 
   const renderItem = ({ item }: { item: Course }) => {
     const bookmarked = isBookmarked(user?._id, item.id);
-
+    const isEnrolled = checkIsEnrolled(user?._id, item.id);
     const fakeProgress = Math.floor(item.price % 100);
 
     return (
       <Link href={`/(app)/details/${item.id}`} asChild>
         <TouchableOpacity className="w-full bg-white dark:bg-brand-dark rounded-[32px] p-5 mb-6 shadow-sm active:opacity-90">
-          <View className="w-full h-44 bg-brand-light dark:bg-[#232042] rounded-[24px] mb-5 overflow-hidden items-center justify-center relative">
+          <View className="w-full h-44 bg-brand-light dark:bg-[#232042] rounded-[24px] mb-5 overflow-hidden relative">
             <Image
               source={{
                 uri: item.thumbnail || "https://via.placeholder.com/400x200",
               }}
-              style={{ width: "90%", height: "90%", borderRadius: 16 }}
+              style={{ position: "absolute", width: "100%", height: "100%" }}
               contentFit="cover"
               transition={300}
             />
 
             <TouchableOpacity
-              className="absolute top-4 right-4 bg-white/90 dark:bg-black/50 p-2.5 rounded-full backdrop-blur-md"
+              className="absolute top-4 right-4 bg-white/90 dark:bg-black/50 p-2.5 rounded-full backdrop-blur-md z-10"
               onPress={() => {
                 if (Platform.OS !== "web")
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -154,22 +156,39 @@ export default function DiscoverScreen() {
             {item.title}
           </Text>
           <Text
-            className="text-gray-500 dark:text-brand-gray text-sm mb-5 font-medium"
+            className="text-gray-500 dark:text-brand-gray text-sm mb-4 font-medium"
             numberOfLines={1}
           >
             8 chapters • 26 lessons
           </Text>
 
+          <View className="flex-row items-center mb-5">
+            <Image
+              source={{
+                uri:
+                  item.instructor.avatar ||
+                  "https://randomuser.me/api/portraits/thumb/men/1.jpg",
+              }}
+              style={{ width: 24, height: 24, borderRadius: 12 }}
+              transition={200}
+            />
+            <Text className="text-brand-navy dark:text-white text-xs font-bold ml-2">
+              {item.instructor.name}
+            </Text>
+          </View>
+
           <View className="flex-row items-center justify-between">
             <Text className="text-brand-navy dark:text-brand-peach font-bold text-base">
-              Continue ➔
+              {isEnrolled ? "Continue ➔" : "View Details ➔"}
             </Text>
 
-            <View className="w-11 h-11 rounded-full border-[2.5px] border-brand-lime items-center justify-center">
-              <Text className="text-brand-navy dark:text-white text-xs font-bold">
-                {fakeProgress}%
-              </Text>
-            </View>
+            {isEnrolled && (
+              <View className="w-11 h-11 rounded-full border-[2.5px] border-brand-lime items-center justify-center">
+                <Text className="text-brand-navy dark:text-white text-xs font-bold">
+                  {fakeProgress}%
+                </Text>
+              </View>
+            )}
           </View>
         </TouchableOpacity>
       </Link>
@@ -180,52 +199,32 @@ export default function DiscoverScreen() {
     <View className="flex-1 bg-brand-light dark:bg-brand-navy pt-16 px-6">
       <View className="flex-row justify-between items-center mb-8">
         <View className="flex-row items-center">
-          <Image
-            source={{
-              uri:
-                user?.avatar?.url ||
-                "https://randomuser.me/api/portraits/men/1.jpg",
-            }}
-            style={{ width: 48, height: 48, borderRadius: 24 }}
-          />
+          <View className="w-12 h-12 rounded-full bg-brand-navy dark:bg-brand-lime items-center justify-center shadow-sm">
+            <Text className="text-white dark:text-brand-navy text-xl font-black uppercase">
+              {user?.username?.charAt(0) || "U"}
+            </Text>
+          </View>
+
           <View className="ml-3">
             <Text className="text-gray-500 dark:text-brand-gray text-sm font-medium">
-              Hello
+              Hello,
             </Text>
             <Text className="text-brand-navy dark:text-white text-xl font-extrabold">
               {user?.username || "Learner"} 👋
             </Text>
           </View>
         </View>
-        <TouchableOpacity className="w-12 h-12 bg-white dark:bg-brand-dark items-center justify-center rounded-2xl shadow-sm">
-          <LayoutGrid size={22} color="#8A88A4" />
+
+        <TouchableOpacity
+          onPress={() => router.push("/modals/recommendations")}
+          className="w-12 h-12 bg-white dark:bg-brand-dark items-center justify-center rounded-2xl shadow-sm border border-transparent dark:border-white/5"
+        >
+          <Sparkles size={22} color="#C6F432" fill="#C6F432" />
         </TouchableOpacity>
       </View>
 
-      <View className="mb-8">
-        <View className="flex-row justify-between items-end mb-3">
-          <Text className="text-brand-navy dark:text-white font-bold text-lg">
-            Your points
-          </Text>
-          <Text className="text-brand-peach font-bold text-sm">
-            Redeem offer
-          </Text>
-        </View>
-        <View className="h-2.5 w-full bg-gray-200 dark:bg-brand-dark rounded-full mb-3 overflow-hidden">
-          <View className="h-full bg-brand-lime w-[35%] rounded-full" />
-        </View>
-        <View className="flex-row justify-between">
-          <Text className="text-gray-500 dark:text-brand-gray text-xs font-medium">
-            2500 points
-          </Text>
-          <Text className="text-gray-500 dark:text-brand-gray text-xs font-medium">
-            7500 points
-          </Text>
-        </View>
-      </View>
-
       <View className="flex-row items-center mb-6">
-        <View className="flex-1 flex-row items-center bg-white dark:bg-brand-dark h-14 rounded-[20px] px-4 shadow-sm mr-3">
+        <View className="flex-1 flex-row items-center bg-white dark:bg-brand-dark h-14 rounded-[20px] px-4 shadow-sm border border-transparent dark:border-white/5 mr-3">
           <Search size={20} color="#8A88A4" />
           <TextInput
             className="flex-1 ml-3 text-brand-navy dark:text-white font-medium text-base"
@@ -235,7 +234,7 @@ export default function DiscoverScreen() {
             onChangeText={setSearchQuery}
           />
         </View>
-        <TouchableOpacity className="h-14 w-14 bg-white dark:bg-brand-dark items-center justify-center rounded-[20px] shadow-sm">
+        <TouchableOpacity className="h-14 w-14 bg-white dark:bg-brand-dark items-center justify-center rounded-[20px] shadow-sm border border-transparent dark:border-white/5">
           <SlidersHorizontal size={22} color="#8A88A4" />
         </TouchableOpacity>
       </View>
@@ -252,10 +251,10 @@ export default function DiscoverScreen() {
               <TouchableOpacity
                 key={index}
                 onPress={() => setActiveCategory(cat)}
-                className={`h-10 px-5 rounded-full items-center justify-center mr-3 ${
+                className={`h-10 px-5 rounded-full items-center justify-center mr-3 shadow-sm ${
                   isActive
                     ? "bg-brand-navy dark:bg-brand-peach"
-                    : "bg-white dark:bg-brand-dark"
+                    : "bg-white dark:bg-brand-dark border border-transparent dark:border-white/5"
                 }`}
               >
                 <Text
@@ -273,15 +272,6 @@ export default function DiscoverScreen() {
         </ScrollView>
       </View>
 
-      <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-brand-navy dark:text-white font-bold text-xl">
-          Enrolled courses
-        </Text>
-        <Text className="text-brand-navy dark:text-brand-peach font-bold text-sm">
-          View all
-        </Text>
-      </View>
-
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#C6F432" />
@@ -297,9 +287,11 @@ export default function DiscoverScreen() {
           </Text>
           <TouchableOpacity
             onPress={() => refetch()}
-            className="bg-brand-lime px-6 py-3 rounded-full"
+            className="bg-brand-navy dark:bg-brand-lime px-6 py-3 rounded-full"
           >
-            <Text className="text-brand-navy font-bold">Try Again</Text>
+            <Text className="text-white dark:text-brand-navy font-bold">
+              Try Again
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (

@@ -28,7 +28,6 @@ import {
 import ConfettiCannon from "react-native-confetti-cannon";
 import Animated, {
   FadeInDown,
-  FadeInUp,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -118,11 +117,20 @@ export default function CourseDetailsScreen() {
     );
   }
 
+  console.log(
+    "userOwnsCourse:",
+    userOwnsCourse,
+    "user:",
+    user?._id,
+    "courseId:",
+    courseId,
+  );
+
   return (
     <View className="flex-1 bg-brand-light dark:bg-brand-navy">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Floating Back & Action Buttons */}
+      {/* Floating Header */}
       <View className="absolute top-12 left-4 right-4 z-50 flex-row justify-between items-center">
         <TouchableOpacity
           onPress={() => router.back()}
@@ -163,7 +171,12 @@ export default function CourseDetailsScreen() {
             onPress={() =>
               router.push({
                 pathname: "/modals/ai-tutor",
-                params: { courseName: course.title },
+                params: {
+                  courseName: course.title,
+                  courseDescription: course.description,
+                  courseCategory: course.category || "General Education",
+                  courseRating: course.rating || "N/A",
+                },
               })
             }
             className="bg-white dark:bg-brand-lime px-4 py-2 rounded-2xl shadow-lg flex-row items-center active:opacity-80"
@@ -252,14 +265,18 @@ export default function CourseDetailsScreen() {
                 </View>
 
                 <View
-                  className={`w-10 h-10 rounded-full border-[2.5px] items-center justify-center ${lesson.progress > 0 ? "border-brand-lime" : "border-gray-200 dark:border-brand-navy"}`}
+                  className={`w-10 h-10 rounded-full border-[2.5px] items-center justify-center ${userOwnsCourse && lesson.progress > 0 ? "border-brand-lime" : "border-gray-200 dark:border-brand-navy"}`}
                 >
-                  {lesson.progress === 100 ? (
-                    <CheckCircle size={16} color="#C6F432" />
+                  {userOwnsCourse ? (
+                    lesson.progress === 100 ? (
+                      <CheckCircle size={16} color="#C6F432" />
+                    ) : (
+                      <Text className="text-brand-navy dark:text-white text-[10px] font-bold">
+                        {lesson.progress}%
+                      </Text>
+                    )
                   ) : (
-                    <Text className="text-brand-navy dark:text-white text-[10px] font-bold">
-                      {lesson.progress}%
-                    </Text>
+                    <PlayCircle size={16} color="#8A88A4" />
                   )}
                 </View>
               </TouchableOpacity>
@@ -268,51 +285,80 @@ export default function CourseDetailsScreen() {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-10 left-6 right-6">
-        <Animated.View
-          entering={FadeInUp.delay(400)}
-          style={animatedButtonStyle}
-        >
-          {userOwnsCourse ? (
-            <TouchableOpacity
-              onPress={() => router.push(`/(app)/viewer/${courseId}`)}
-              className="bg-brand-navy dark:bg-brand-lime h-16 rounded-3xl flex-row items-center justify-center shadow-2xl"
+      <Animated.View
+        style={[
+          animatedButtonStyle,
+          {
+            position: "absolute",
+            bottom: Platform.OS === "ios" ? 110 : 70,
+            left: 24,
+            right: 24,
+            zIndex: 100,
+            elevation: 10,
+          },
+        ]}
+      >
+        {userOwnsCourse ? (
+          <TouchableOpacity
+            onPress={() => router.push(`/(app)/viewer/${courseId}`)}
+            className="bg-brand-navy dark:bg-brand-lime h-16 rounded-3xl flex-row items-center justify-center shadow-xl w-full"
+          >
+            <PlayCircle
+              size={22}
+              color={Platform.OS === "ios" ? "white" : "black"}
+            />
+            <Text className="text-white dark:text-black font-extrabold text-lg ml-3">
+              View Course
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableWithoutFeedback
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handleEnroll}
+          >
+            <View
+              style={{
+                backgroundColor: "#1a1a2e", // hardcoded fallback for brand-navy
+                height: 64,
+                borderRadius: 24,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingHorizontal: 32,
+                width: "100%",
+              }}
             >
-              <PlayCircle
-                size={22}
-                color={Platform.OS === "ios" ? "white" : "black"}
-              />
-              <Text className="text-white dark:text-black font-extrabold text-lg ml-3">
-                Continue Learning
+              <Text style={{ color: "white", fontWeight: "800", fontSize: 18 }}>
+                Enroll Now
               </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableWithoutFeedback
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              onPress={handleEnroll}
-            >
-              <View className="bg-brand-navy dark:bg-brand-peach h-16 rounded-3xl flex-row items-center justify-between px-8 shadow-2xl">
-                <Text className="text-white dark:text-brand-navy font-extrabold text-lg">
-                  Enroll Now
-                </Text>
-                <Text className="text-white/60 dark:text-brand-navy/60 font-bold text-lg">
-                  ${course.price}
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          )}
-        </Animated.View>
-      </View>
+              <Text
+                style={{
+                  color: "rgba(255,255,255,0.6)",
+                  fontWeight: "700",
+                  fontSize: 18,
+                }}
+              >
+                ${course.price}
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+      </Animated.View>
 
       {showConfetti && (
-        <ConfettiCannon
-          count={150}
-          origin={{ x: 0, y: 0 }}
-          autoStart={true}
-          fadeOut={true}
-          colors={["#C6F432", "#F9C0AB", "#6E5DE7", "#FFFFFF"]}
-        />
+        <View
+          className="absolute z-[999] pointer-events-none"
+          style={{ top: 0, left: 0, right: 0, bottom: 0 }}
+        >
+          <ConfettiCannon
+            count={150}
+            origin={{ x: -10, y: 0 }}
+            autoStart={true}
+            fadeOut={true}
+            colors={["#C6F432", "#F9C0AB", "#6E5DE7", "#FFFFFF"]}
+          />
+        </View>
       )}
     </View>
   );

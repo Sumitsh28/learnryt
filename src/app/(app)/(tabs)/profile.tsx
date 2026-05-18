@@ -1,5 +1,5 @@
-import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import {
   Bell,
   BookOpen,
@@ -8,7 +8,6 @@ import {
   Flame,
   LogOut,
   Moon,
-  Settings,
   Shield,
   Sun,
 } from "lucide-react-native";
@@ -140,18 +139,9 @@ export default function ProfileScreen() {
           className="relative mb-4 shadow-sm"
         >
           <View className="w-32 h-32 rounded-[40px] bg-white dark:bg-brand-dark border-4 border-white dark:border-brand-dark overflow-hidden items-center justify-center">
-            {user?.avatar?.url ? (
-              <Image
-                source={{ uri: user.avatar.url }}
-                style={{ width: "100%", height: "100%" }}
-                transition={200}
-                cachePolicy="memory-disk"
-              />
-            ) : (
-              <Text className="text-gray-400 dark:text-brand-gray text-5xl font-bold uppercase">
-                {user?.username?.charAt(0) || "?"}
-              </Text>
-            )}
+            <Text className="text-gray-400 dark:text-brand-gray text-5xl font-bold uppercase">
+              {user?.username?.charAt(0) || "?"}
+            </Text>
           </View>
 
           <View className="absolute -bottom-2 -right-2 bg-brand-lime p-3 rounded-2xl border-4 border-brand-light dark:border-brand-navy shadow-lg">
@@ -237,8 +227,11 @@ export default function ProfileScreen() {
           }
         />
 
-        <MenuRow icon={Settings} title="Account Settings" onPress={() => {}} />
-        <MenuRow icon={Bell} title="Notifications" onPress={() => {}} />
+        <MenuRow
+          icon={Bell}
+          title="Notifications"
+          onPress={() => router.push("/modals/notifications")}
+        />
 
         <Text className="text-gray-400 dark:text-brand-gray text-xs font-bold uppercase tracking-wider mb-3 mt-6 ml-2">
           System
