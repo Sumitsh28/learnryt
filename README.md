@@ -168,6 +168,8 @@ Reliability is paramount. We implemented a robust testing pipeline achieving **>
 - **Environment Mocks:** Full structural mocks implemented for Reanimated, NativeWind, JailMonkey, and Expo Router to ensure pure, isolated testing.
 
 ### Coverage Report
+<img width="671" height="536" alt="Screenshot 2026-05-18 at 11 32 39 AM" src="https://github.com/user-attachments/assets/a2b616e7-a627-4dbc-8480-0d47f640eb68" />
+
 
 ---
 
