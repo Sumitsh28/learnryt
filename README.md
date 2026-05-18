@@ -16,35 +16,73 @@
 <table>
   <tr>
     <td align="center">
+      <h4>Welcome Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 02 (2)" src="https://github.com/user-attachments/assets/00dbebcc-a852-4efe-ac21-c2c5fe786dae" />
+
+  </td>
+    <td align="center">
+      <h4>SignUp Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 02 (1)" src="https://github.com/user-attachments/assets/ec160809-d66d-4eee-8a56-f587a3609069" />
+
+  </td>
+
+  <td align="center">
+      <h4>SignIn Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 02" src="https://github.com/user-attachments/assets/644bd0d9-d1fe-48a5-988f-d230e5230c58" />
+
+  </td>
+  </tr>
+
+  <tr>
+    <td align="center">
       <h4>Home Screen</h4>
-      <img src="YOUR_IMAGE_1" width="250"/>
-    </td>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 53 59" src="https://github.com/user-attachments/assets/9011be3d-f928-4b5d-8abe-277dc44b64dd" />
+
+  </td>
+    <td align="center">
+      <h4>Course Details Screen</h4>
+     <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 00" src="https://github.com/user-attachments/assets/efa110c8-e5e6-465a-9492-a58f981f7c0c" />
+
+  </td>
+   <td align="center">
+      <h4>Course Enroll Confetti</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 00 (2)" src="https://github.com/user-attachments/assets/c004eac1-5e6f-47ab-88da-28515576dab4" />
+
+  </td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <h4>Dashboard Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 01" src="https://github.com/user-attachments/assets/72fd36a1-cd2a-4ff2-a47f-f8280a2a5acd" />
+
+  </td>
     <td align="center">
       <h4>Profile Screen</h4>
-      <img src="YOUR_IMAGE_2" width="250"/>
-    </td>
-  </tr>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 01 (1)" src="https://github.com/user-attachments/assets/d96cfa99-66e2-4799-93a8-8608b377e4f0" />
+</td>
+    <td align="center">
+      <h4>Notifications Toggle Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 01 (2)" src="https://github.com/user-attachments/assets/05396b96-1e9c-41e1-a626-d1348547461c" />
 
+  </td>
+  </tr>
   <tr>
     <td align="center">
-      <h4>Chat Screen</h4>
-      <img src="YOUR_IMAGE_3" width="250"/>
-    </td>
-    <td align="center">
-      <h4>Settings Screen</h4>
-      <img src="YOUR_IMAGE_4" width="250"/>
-    </td>
-  </tr>
+      <h4>AI Tutor Chat Screen</h4>
+<img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 00 (1)" src="https://github.com/user-attachments/assets/269e5170-f60c-474d-94fe-8edaca2db072" />
 
-  <tr>
+  </td>
     <td align="center">
-      <h4>Dark Mode</h4>
-      <img src="YOUR_IMAGE_5" width="250"/>
-    </td>
+      <h4>AI Course Recommedation Screen</h4>
+      <img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 13 54 01 (3)" src="https://github.com/user-attachments/assets/ffaf9793-73b2-47fe-b6d3-09932c8fddf8" />
+
+</td>
     <td align="center">
-      <h4>Notifications</h4>
-      <img src="YOUR_IMAGE_6" width="250"/>
-    </td>
+      <h4>Light Mode View</h4>
+<img width="1080" height="2400" alt="WhatsApp Image 2026-05-18 at 14 31 37" src="https://github.com/user-attachments/assets/fa1f4e7e-f804-43d8-a058-4027a587c222" />
+
+  </td>
   </tr>
 </table>
 
